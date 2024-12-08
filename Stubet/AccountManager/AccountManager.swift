@@ -7,13 +7,14 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseStorage
 import FirebaseAuth
 
 class AccountManager: NSObject, ObservableObject {
     
     static let shared = AccountManager()
-    let db = Firestore.firestore()
-    
+    private let db = Firestore.firestore()
+    private let storage = Storage.storage()
     // ローカルの現在のユーザーを保持するためのPublishedプロパティ
     @Published var currentUser: User?
     @Published var handle: AuthStateDidChangeListenerHandle?
@@ -44,7 +45,7 @@ class AccountManager: NSObject, ObservableObject {
             })
     }
     
-    // cleanup method to remove the listener if needed
+    /// cleanup method to remove the listener if needed
     func removeAuthListener() {
         if let handle = handle {
             Auth.auth().removeStateDidChangeListener(handle)
@@ -52,7 +53,25 @@ class AccountManager: NSObject, ObservableObject {
         }
     }
     
-    func signUp(password: String, userName: String, displayName: String, iconUrl: String) async throws {
+    /// Upload the profile image to Firebase Storage using async/await.
+    func uploadIconImage(iconImage: UIImage?) async throws -> URL {
+        guard let image = iconImage,
+              let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid image."])
+        }
+
+        let imageName = UUID().uuidString
+        let storageRef = storage.reference().child("profileImages/\(imageName).jpg")
+
+        // Upload the image
+        let metadata = try await storageRef.putDataAsync(imageData)
+
+        // Retrieve the download URL
+        let downloadURL = try await storageRef.downloadURL()
+        return downloadURL
+    }
+    
+    func signUp(password: String, userName: String, displayName: String, iconImageUrl: URL?) async throws {
         
         // sign up with fake email address
         let email = "\(userName)@stubetapp.com"
@@ -69,11 +88,10 @@ class AccountManager: NSObject, ObservableObject {
             let userData: [String: Any] = [
                 "userName": userName,
                 "displayName": displayName,
-                "iconUrl": iconUrl,
+                "iconUrl": iconImageUrl?.absoluteString ?? "" ,
                 "email": email,
                 "createdAt": Timestamp(date: Date()),
                 "updatedAt": Timestamp(date: Date()),
-                "friends" : []
             ]
 
             

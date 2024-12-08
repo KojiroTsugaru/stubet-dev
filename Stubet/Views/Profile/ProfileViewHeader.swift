@@ -39,27 +39,52 @@ struct ProfileViewHeader: View {
                 Spacer()
                 
                 VStack {
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .foregroundColor(Color.orange)
-                        .background(Circle().fill(Color.white)) // White outline
-                        .clipShape(Circle()) // Clip to circle
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white, lineWidth: 4) // White border
+                    AsyncImage(
+                        url: URL(
+                            string: accountManager.currentUser?.iconUrl ?? ""
                         )
+                    ) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } else if phase.error != nil {
+                            // Fallback to placeholder in case of an error
+                            Image(
+                                systemName: "person.crop.circle.fill.badge.xmark"
+                            )
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(Color.orange)
+                        } else {
+                            // Placeholder while loading
+                            Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.orange)
+                        }
+                    }
+                    .frame(width: 80, height: 80)
+                    .background(Circle().fill(Color.white)) // White outline
+                    .clipShape(Circle()) // Clip to circle
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: 4) // White border
+                    )
                     
                     // User Info
                     VStack(spacing: 4) {
-                        Text(accountManager.currentUser?.displayName ?? "No user")
-                            .font(.title2)
-                            .bold()
+                        Text(
+                            accountManager.currentUser?.displayName ?? "No user"
+                        )
+                        .font(.title2)
+                        .bold()
                         HStack {
-                            Text("@\(accountManager.currentUser?.userName ?? "No user")")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                            Text(
+                                "@\(accountManager.currentUser?.userName ?? "No user")"
+                            )
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
                         }
                     }
                 }.offset(y: 20)
@@ -89,10 +114,18 @@ struct ProfileViewHeader: View {
                 .frame(width: 140, height: 80) // Adjust size of the rectangle
                 .background(Color.white) // Background color
                 .cornerRadius(12) // Rounded corners
-                .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2) // Subtle shadow
+                .shadow(
+                    color: Color.gray.opacity(0.2),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                ) // Subtle shadow
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.4), lineWidth: 1) // Thin border
+                        .stroke(
+                            Color.gray.opacity(0.4),
+                            lineWidth: 1
+                        ) // Thin border
                 )
             }
 
@@ -116,15 +149,25 @@ struct ProfileViewHeader: View {
                 .frame(width: 140, height: 80) // Adjust size of the rectangle
                 .background(Color.white) // Background color
                 .cornerRadius(12) // Rounded corners
-                .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2) // Subtle shadow
+                .shadow(
+                    color: Color.gray.opacity(0.2),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                ) // Subtle shadow
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.4), lineWidth: 1) // Thin border
+                        .stroke(
+                            Color.gray.opacity(0.4),
+                            lineWidth: 1
+                        ) // Thin border
                 )
             }
         }
         .padding()
-        .background(Color(UIColor.systemGroupedBackground)) // Add subtle background
+        .background(
+            Color(UIColor.systemGroupedBackground)
+        ) // Add subtle background
     }
 }
 

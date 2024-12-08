@@ -197,4 +197,10 @@ class FriendManager: ObservableObject {
             }
         }
     }
+    
+    // call this function on sign out
+    func emptyAllData() {
+        self.incomingRequests = []
+        self.friends = []
+    }
 }

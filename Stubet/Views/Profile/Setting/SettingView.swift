@@ -42,6 +42,7 @@ struct SettingView: View {
     private func signout() async throws {
         do {
             BetManager.shared.emptyAllData()
+            FriendManager.shared.emptyAllData()
             try await accountManager.signOut()
         } catch {
             print(error)
